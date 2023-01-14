@@ -3,5 +3,6 @@
 -- average score for a student
 CREATE PROCEDURE ComputeAverageScoreForUser @user_id
 AS
-SELECT AVG(score) FROM corrections WHERE users.id = @user_id
+UPDATE users
+SET average_score = (SELECT AVG(score) FROM corrections WHERE corrections.user_id = @user_id)
 GO;
