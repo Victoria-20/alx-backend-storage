@@ -1,7 +1,8 @@
 --  SQL script that creates a trigger that decreases
 -- the quantity of an item after adding a new order
-CREATE TRIGGER dec_qty BEFORE INSERT ON `items`
+CREATE TRIGGER dec_qty AFTER INSERT ON `orders`
 FOR EACH ROW
 BEGIN
-SET `items`.`quantity` = `items`.`quantity` - 1
+UPDATE `items` SET `quantity` = `quantity` - NEW.number
+WHERE NAME = NEW.item_name
 END;
