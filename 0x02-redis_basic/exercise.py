@@ -4,6 +4,19 @@ import redis
 import random
 from typing import Union, Optional, Callable
 import uuid
+from functools import wraps
+
+
+def count_calls(method: Callable) -> Callable:
+    """Decorator that takes a single method Callable
+    argument and returns a Callable."""
+    key = method.__qualname__
+
+    @wraps(method)
+    def wrapper(self, *args, **kwds):
+        self._redis.incr(key)
+        return method(self, *args, **kwds)
+    return wrapper
 
 
 class Cache():
@@ -12,6 +25,7 @@ class Cache():
         self._redis = redis.Redis()
         self._redis.flushdb()
 
+    @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         r_key = str(uuid.uuid4())
         self._redis.set(r_key, data)
