@@ -36,6 +36,23 @@ def call_history(method: Callable) -> Callable:
     return wrapper
 
 
+def replay(method: Callable) -> None:
+    """replay function to display the history of calls of
+    a particular function. Use keys generated in previous
+    tasks to generate the following output:"""
+    r_instance = method.__self__._redis
+    key = method.__qualname__
+    n_calls = r_instance.get(key).decode("utf-8")
+    print(f'{key} was called {n_calls} times:')
+    fn_inputs = r_instance.lrange(f'{key}:inputs', 0, -1)
+    fn_outputs = r_instance.lrange(f'{key}:outputs', 0, -1)
+    fn_inout = list(zip(fn_inputs, fn_outputs))
+    for input, output in fn_inout:
+        input = input.decode('utf-8')
+        output = output.decode('utf-8')
+        print(f"{key}(*{input}) -> {output}")
+
+
 class Cache():
     """ initializes Redis"""
     def __init__(self) -> None:
